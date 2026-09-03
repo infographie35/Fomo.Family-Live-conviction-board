@@ -144,7 +144,7 @@ To intentionally switch Fomo accounts:
 
 ## Run
 
-Make sure you are logged in to Fomo.Family and keep a Fomo tab open in Chrome.
+Make sure you are logged in to Fomo.Family and keep a Fomo tab open in Chrome/Vivaldi/brave...
 
 
 Then start the dashboard:
