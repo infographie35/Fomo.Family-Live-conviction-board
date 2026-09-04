@@ -89,11 +89,13 @@ class TokenState:
     dex_pair_address: str | None = None
     # Discovery chooses a credible pair from Fomo market evidence. BUY/SELLs
     # always request revalidation while the pair is provisional; throttled
-    # TRENDING/prices evidence can also correct it. Successive agreement on the
-    # same pair confirms and locks that market.
+    # TRENDING and optional held-ALERT prices evidence can also correct it.
+    # Successive agreement on the same pair confirms and locks that market.
+    # Held-ALERT `prices` evidence is
+    # optional; DexScreener remains the general market-data source.
     dex_pair_confirmed: bool = False
     # True after fresh Fomo evidence has requested pair revalidation. BUY/SELL
-    # signals set it immediately; auxiliary TRENDING/prices evidence is
+    # signals set it immediately; auxiliary TRENDING/held-prices evidence is
     # throttled so high-frequency updates cannot turn into high-frequency Dex
     # requests. Confirmed pairs remain locked by market_data.py.
     dex_pair_needs_revalidation: bool = False
@@ -101,7 +103,7 @@ class TokenState:
     # successful Dex response marks that enrichment attempted even when no
     # coherent MC pair exists, preventing every trending tick from retrying it.
     dex_enrichment_attempted: bool = False
-    # Monotonic timestamp of the last auxiliary (TRENDING/prices) request for a
+    # Monotonic timestamp of the last auxiliary (TRENDING/held-prices) request for a
     # provisional ALERTS pair. This is runtime-only state by design.
     last_aux_market_refresh_requested_at: float | None = None
     last_activity_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))

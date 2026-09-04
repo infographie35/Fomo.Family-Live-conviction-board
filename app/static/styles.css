@@ -1419,3 +1419,80 @@ h1 {
 .trending-card .card-foot { margin-top:12px; }
 @media (max-width:1200px) { .trending-filter-panel { grid-template-columns:repeat(3,minmax(120px,1fr)); } .trending-search-field { grid-column:span 2; } }
 @media (max-width:720px) { .trending-filter-panel { grid-template-columns:repeat(2,minmax(0,1fr)); } .trending-search-field { grid-column:1/-1; } .trending-summary { flex-wrap:wrap; } }
+
+/* PONS GRADUATED is a short-lived graduation log. Symbol, name, pair and MC
+   are deliberately oversized for scanability; timestamp, duration and contract
+   stay compact. Retention only controls what the browser shows and never starts
+   market tracking or mutates the persisted PONS event history. */
+.pons-view { margin-top: 22px; }
+.pons-view .following-head h2 { color: #c4c4c4; }
+.pons-retention {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 750;
+}
+.pons-retention input {
+  width: 66px;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #0e1216;
+  color: var(--text);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+.pons-retention button {
+  padding: 6px 9px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+  color: #c4c4c4;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+}
+.pons-retention button:hover { border-color: var(--line-strong); }
+.pons-retention .is-ok { color: var(--buy); }
+.pons-retention .is-error { color: var(--sell); }
+.pons-table-wrap { overflow-x: auto; }
+.pons-table { min-width: 1280px; table-layout: fixed; }
+.pons-table th:nth-child(1), .pons-table td:nth-child(1) { width: 180px; }
+.pons-table th:nth-child(2), .pons-table td:nth-child(2) { width: 170px; }
+.pons-table th:nth-child(3), .pons-table td:nth-child(3) { width: 350px; }
+.pons-table th:nth-child(4), .pons-table td:nth-child(4) { width: 130px; }
+.pons-table th:nth-child(5), .pons-table td:nth-child(5) { width: 140px; text-align: right; }
+.pons-table th:nth-child(6), .pons-table td:nth-child(6) { width: 110px; text-align: right; }
+.pons-table th:nth-child(7), .pons-table td:nth-child(7) { width: 200px; }
+.pons-table td { font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pons-table th:nth-child(2),
+.pons-table th:nth-child(3),
+.pons-table th:nth-child(4),
+.pons-table th:nth-child(5) { font-size: 20px; color: #8f9aa5; }
+.pons-table td:nth-child(2),
+.pons-table td:nth-child(3),
+.pons-table td:nth-child(4),
+.pons-table td:nth-child(5) { font-size: 24px; color: #c4c4c4; }
+.pons-token-link { color: #c4c4c4; text-decoration: none; font-weight: 800; }
+.pons-token-link[href]:hover { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+.pons-token-link:not([href]) { color: var(--muted); }
+.pons-contract-copy {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 7px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #0e1216;
+  color: #c4c4c4;
+  cursor: pointer;
+  font: inherit;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.pons-contract-copy:hover { border-color: var(--line-strong); color: #c4c4c4; }
+.pons-contract-copy .contract-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.pons-contract-copy .copy-icon { flex: 0 0 auto; color: var(--muted); }

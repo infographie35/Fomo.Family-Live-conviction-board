@@ -20,6 +20,7 @@ from .services.balances import balance_manager
 from .services.balance_refresh import balance_refresh_service
 from .services.ws_event_log import ws_event_log
 from .services.runtime_health import runtime_health
+from .services.pons_graduations import pons_graduation_manager, pons_graduation_watcher
 from .store import store
 
 
@@ -103,6 +104,7 @@ async def lifespan(app: FastAPI):
         "maintenance": asyncio.create_task(maintenance_loop()),
         "balanceRefresher": asyncio.create_task(balance_refresh_service.run(stop_event)),
         "followingRefresher": asyncio.create_task(following_refresh_service.run(stop_event)),
+        "ponsGraduations": asyncio.create_task(pons_graduation_watcher.run(stop_event)),
     }
     tasks = list(named_tasks.values())
     for name, task in named_tasks.items():
@@ -180,6 +182,11 @@ async def api_following():
 @app.get("/api/log")
 async def api_log():
     return await ws_event_log.snapshot()
+
+
+@app.get("/api/pons/graduations")
+async def api_pons_graduations():
+    return await pons_graduation_manager.snapshot()
 
 
 @app.post("/api/following/favorite")

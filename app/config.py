@@ -40,15 +40,21 @@ DEX_RATE_LIMIT_BACKOFF_MAX_SECONDS = 30
 DEX_RATE_LIMIT_MAX_RETRIES = 3
 
 # TRENDING already supplies live Fomo MC/price. Dex is therefore enrichment for
-# TRENDING-only tokens (not a second live-price feed). Price/trending evidence
-# may still revalidate a provisional ALERTS pair, but at most once per cooldown;
-# BUY/SELL events remain immediate and are not throttled by this setting.
+# TRENDING-only tokens (not a second live-price feed). TRENDING and eligible
+# held-ALERT price evidence may revalidate a provisional pair at most once per
+# cooldown; BUY/SELL events remain immediate and are not throttled here.
 FOMO_AUX_MARKET_REVALIDATION_COOLDOWN_SECONDS = 30
 
-# Price topics are optional evidence, not a prerequisite for ALERTS/TRENDING.
-# Advance subscriptions in small batches so an unknown upstream topic ceiling
-# cannot produce a large burst before the server can report capacity.
-FOMO_PRICE_SUBSCRIBE_BATCH_SIZE = 4
+# Per-token `prices` subscriptions are reserved for tokens that are both held
+# by the active Fomo account and still present in ALERTS. The pump adds at most
+# one topic per interval; DexScreener handles general market refreshes.
+FOMO_PRICE_SUBSCRIBE_INTERVAL_SECONDS = 1.0
+
+# PONS is an append-only graduation log, not a live market-data feed. Polling
+# matches the validated standalone watcher cadence. PONS Launchpad graduations
+# tracked by this endpoint are Robinhood-chain tokens.
+PONS_GRADUATIONS_POLL_SECONDS = 3.0
+PONS_NETWORK_ID = 4663
 
 # During pair discovery/revalidation, fresh Fomo MC provides a multiplicative
 # sanity band. Coherent USD/stable pools are preferred; otherwise only coherent

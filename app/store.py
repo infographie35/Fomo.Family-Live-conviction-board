@@ -579,11 +579,10 @@ class DashboardStore:
             return True, key, market_refresh_needed
 
     async def apply_price_payload(self, topic_id: str, payload: dict) -> tuple[bool, str | None, bool]:
-        """Store official Fomo price evidence for a known ALERTS/TRENDING token.
+        """Store official Fomo price evidence for a subscribed held ALERTS token.
 
-        Live prices are optional evidence for provisional ALERTS pair discovery.
-        TRENDING-only cards already receive live Fomo MC/price from their own
-        topic and therefore never use `prices` to drive Dex refreshes.
+        General market tracking is handled by DexScreener. TRENDING-only and
+        unheld ALERTS tokens never request this per-token Fomo stream.
         """
         if not isinstance(payload, dict):
             return False, None, False
@@ -604,19 +603,32 @@ class DashboardStore:
             self._version += 1
             return True, key, needs_market_refresh
 
-    async def relevant_price_topics(self) -> set[str]:
-        """Return deduplicated optional price topics for active ALERTS tokens.
+    async def held_alert_price_topics(self, held_token_keys: set[str]) -> set[str]:
+        """Return `prices` topics only for held tokens that are still in ALERTS.
 
-        TRENDING already supplies native Fomo MC/price and does not need an
-        additional per-token subscription. A token visible in both views still
-        produces exactly one topic because both views share TokenState.
+        General ALERTS/TRENDING market refreshes use DexScreener. The optional
+        Fomo per-token stream is deliberately restricted to the intersection of
+        the active account's positive BALANCE positions and live ALERTS state.
         """
         async with self._lock:
             return {
                 f"{token.token_address}:{token.network_id}"
                 for token in self._tokens.values()
-                if token.buyers or token.sold_buyers
+                if token.key in held_token_keys and (token.buyers or token.sold_buyers)
             }
+
+    async def clear_ineligible_fomo_prices(self, eligible_topics: set[str]) -> int:
+        """Drop cached `prices` evidence as soon as a token is no longer eligible."""
+        cleared = 0
+        async with self._lock:
+            for token in self._tokens.values():
+                topic_id = f"{token.token_address}:{token.network_id}"
+                if topic_id not in eligible_topics and token.fomo_price is not None:
+                    token.fomo_price = None
+                    cleared += 1
+            if cleared:
+                self._version += 1
+        return cleared
 
     @staticmethod
     def _market_reference_mc(token: TokenState, force_revalidate: bool) -> float | None:

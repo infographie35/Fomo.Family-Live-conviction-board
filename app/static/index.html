@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Fomo Alert Dashboard</title>
-  <link rel="stylesheet" href="/static/styles.css?v=36.11">
+  <link rel="stylesheet" href="/static/styles.css?v=36.13">
 </head>
 <body>
   <main class="shell">
@@ -27,6 +27,7 @@
     <nav class="view-tabs" aria-label="Dashboard views">
       <button id="alertsTab" class="view-tab active" type="button">ALERTS</button>
       <button id="trendingTab" class="view-tab" type="button">TRENDING <span id="trendingTabCount">0</span></button>
+      <button id="ponsTab" class="view-tab" type="button">PONS GRADUATED <span id="ponsTabCount">0</span></button>
       <button id="watchlistTab" class="view-tab" type="button">WATCHLIST</button>
       <button id="followingTab" class="view-tab" type="button">FOLLOWING</button>
       <button id="balanceTab" class="view-tab" type="button">BALANCE</button>
@@ -152,6 +153,29 @@
       <div id="trendingEmpty" class="following-empty">Waiting for Fomo trending_tokens…</div>
     </section>
 
+    <section id="ponsView" class="following-view pons-view" hidden>
+      <div class="following-head">
+        <div><h2>PONS Graduated</h2><p>Graduation log · market cap is captured at graduation, with no live price tracking.</p></div>
+        <span id="ponsUpdated" class="muted"></span>
+      </div>
+      <form id="ponsRetentionForm" class="pons-retention">
+        <label for="ponsRetentionInput">Remove alerts after</label>
+        <input id="ponsRetentionInput" type="number" min="1" max="10080" step="1" value="60">
+        <span>min</span>
+        <button type="submit">Apply</button>
+        <span id="ponsRetentionStatus" class="muted"></span>
+      </form>
+      <div class="following-table-wrap pons-table-wrap">
+        <table class="following-table pons-table">
+          <thead><tr>
+            <th>DATE / TIME</th><th>SYMBOL</th><th>NAME</th><th>PAIR</th><th>MC</th><th>DURATION</th><th>CONTRACT</th>
+          </tr></thead>
+          <tbody id="ponsBody"></tbody>
+        </table>
+      </div>
+      <div id="ponsEmpty" class="following-empty">Waiting for new PONS graduations…</div>
+    </section>
+
     <section id="watchlistView" class="watchlist-view" hidden>
       <div class="following-head">
         <div><h2>Watchlist</h2><p>Starred tokens stay here and are restored from the last saved snapshot after restart.</p></div>
@@ -241,7 +265,7 @@
         <table class="following-table">
           <thead><tr>
             <th data-sort="name">TRADER</th><th data-sort="followers">FOLLOWERS</th><th data-sort="trades">TRADES</th>
-            <th data-sort="volume">VOLUME</th><th data-sort="pnl24h">PNL 24H</th><th data-sort="favorite">FAVORI</th>
+            <th data-sort="volume">VOLUME</th><th data-sort="pnl24h">PNL 24H</th><th data-sort="favorite">FAVORITE</th>
           </tr></thead>
           <tbody id="followingBody"></tbody>
         </table>
@@ -284,7 +308,7 @@
         </div>
       </div>
 
-      <div class="conviction" title="Flux d'ordres sur les 60 dernieres minutes">
+      <div class="conviction" title="Order flow over the last 60 minutes">
         <div class="conviction-spark"></div>
         <div class="conviction-axis"><span>-60m</span><span>-30m</span><span>NOW</span></div>
       </div>
@@ -302,6 +326,6 @@
     </article>
   </template>
 
-  <script src="/static/app.js?v=36.11"></script>
+  <script src="/static/app.js?v=36.13"></script>
 </body>
 </html>

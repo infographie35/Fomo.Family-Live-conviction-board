@@ -25,6 +25,8 @@ const shell = document.querySelector(".shell");
 const alertsTab = document.getElementById("alertsTab");
 const trendingTab = document.getElementById("trendingTab");
 const trendingTabCount = document.getElementById("trendingTabCount");
+const ponsTab = document.getElementById("ponsTab");
+const ponsTabCount = document.getElementById("ponsTabCount");
 const followingTab = document.getElementById("followingTab");
 const watchlistTab = document.getElementById("watchlistTab");
 const balanceTab = document.getElementById("balanceTab");
@@ -44,6 +46,13 @@ const trendingMcMax = document.getElementById("trendingMcMax");
 const trendingAge = document.getElementById("trendingAge");
 const trendingSort = document.getElementById("trendingSort");
 const trendingClear = document.getElementById("trendingClear");
+const ponsView = document.getElementById("ponsView");
+const ponsBody = document.getElementById("ponsBody");
+const ponsEmpty = document.getElementById("ponsEmpty");
+const ponsUpdated = document.getElementById("ponsUpdated");
+const ponsRetentionForm = document.getElementById("ponsRetentionForm");
+const ponsRetentionInput = document.getElementById("ponsRetentionInput");
+const ponsRetentionStatus = document.getElementById("ponsRetentionStatus");
 const followingView = document.getElementById("followingView");
 const watchlistView = document.getElementById("watchlistView");
 const balanceView = document.getElementById("balanceView");
@@ -96,6 +105,7 @@ let watchlistKeys = new Set();
 let watchlistTokens = [];
 let balanceItems = [];
 let balanceByKey = new Map();
+let ponsItems = [];
 let currentView = "alerts";
 let lastLogData = { startedAt: null, count: 0, events: [] };
 let logPollInFlight = false;
@@ -111,6 +121,9 @@ let followingUpdatedFallback = "Waiting for Fomo profile data";
 let balanceUpdatedAtMs = NaN;
 let balanceUpdatedCount = 0;
 let balanceUpdatedFallback = "Waiting for Fomo balance data";
+let ponsUpdatedAtMs = NaN;
+let ponsUpdatedCount = 0;
+let ponsUpdatedFallback = "Waiting for PONS graduation data";
 
 const refreshClocks = {
   balance: { interval: null, deadlineMs: null, scanning: true },
@@ -136,10 +149,12 @@ const LEGACY_BUYER_COLUMNS_STORAGE_KEY = "fomo-dashboard-buyer-columns";
 const FAVORITE_LANE_FILTER_STORAGE_KEY = "fomo-dashboard-favorite-lane-filters";
 const FAV_ALERTS_SEEN_STORAGE_KEY = "fomo-dashboard-fav-alerts-seen-v36-2";
 const FAV_ALERTS_RETENTION_STORAGE_KEY = "fomo-dashboard-fav-alerts-retention-minutes-v36-4";
-const DEFAULT_FAV_ALERTS_RETENTION_MINUTES = 60;
-const MIN_FAV_ALERTS_RETENTION_MINUTES = 1;
-const MAX_FAV_ALERTS_RETENTION_MINUTES = 10080;
-let favAlertsRetentionMinutes = loadFavoriteAlertsRetentionMinutes();
+const PONS_RETENTION_STORAGE_KEY = "fomo-dashboard-pons-retention-minutes-v36-13";
+const DEFAULT_RETENTION_MINUTES = 60;
+const MIN_RETENTION_MINUTES = 1;
+const MAX_RETENTION_MINUTES = 10080;
+let favAlertsRetentionMinutes = loadStoredRetentionMinutes(FAV_ALERTS_RETENTION_STORAGE_KEY);
+let ponsRetentionMinutes = loadStoredRetentionMinutes(PONS_RETENTION_STORAGE_KEY);
 const ALERT_BUYER_SECTION_KEYS = Object.freeze(["1", "2", "3plus"]);
 const DEFAULT_BUYER_COLUMNS = Object.freeze({
   "1": { min: 1, max: 1 },
@@ -263,7 +278,7 @@ function buyerSectionSpecs() {
     rangeSpec("1"),
     {
       key: "exits",
-      title: "SORTIES RÉCENTES",
+      title: "RECENT EXITS",
       isAlertLane: false,
       match: t => t.alertCount === 0 && (t.soldBuyers || []).length > 0,
     },
@@ -488,12 +503,12 @@ function eventTokenKey(event) {
   return `${event.networkId ?? "unknown"}:${String(event.tokenAddress).toLowerCase()}`;
 }
 
-function loadFavoriteAlertsRetentionMinutes() {
-  const saved = Number(localStorage.getItem(FAV_ALERTS_RETENTION_STORAGE_KEY));
-  if (Number.isInteger(saved) && saved >= MIN_FAV_ALERTS_RETENTION_MINUTES && saved <= MAX_FAV_ALERTS_RETENTION_MINUTES) {
+function loadStoredRetentionMinutes(storageKey) {
+  const saved = Number(localStorage.getItem(storageKey));
+  if (Number.isInteger(saved) && saved >= MIN_RETENTION_MINUTES && saved <= MAX_RETENTION_MINUTES) {
     return saved;
   }
-  return DEFAULT_FAV_ALERTS_RETENTION_MINUTES;
+  return DEFAULT_RETENTION_MINUTES;
 }
 
 function favoriteAlertIsFresh(event, now = Date.now()) {
@@ -1074,8 +1089,8 @@ function updateCard(entry, token, now, sparkGen) {
   if (url) {
     if (refs.tickerLink.getAttribute("href") !== url) refs.tickerLink.setAttribute("href", url);
     refs.tickerLink.title = favoriteBuyerBought
-      ? "A favorite followed trader bought this token · Ouvrir sur fomo.family"
-      : "Ouvrir sur fomo.family";
+      ? "A favorite followed trader bought this token · Open on fomo.family"
+      : "Open on fomo.family";
   } else {
     refs.tickerLink.removeAttribute("href");
   }
@@ -1149,7 +1164,7 @@ function updateCard(entry, token, now, sparkGen) {
 
     const hidden = positionEvents.length - visible.length;
     refs.toggle.hidden = positionEvents.length <= BUYERS_CAP;
-    refs.toggle.textContent = expanded ? "▲ RÉDUIRE" : `▼ +${hidden} AUTRES`;
+    refs.toggle.textContent = expanded ? "▲ COLLAPSE" : `▼ +${hidden} OTHERS`;
   }
 
   for (const built of entry.timeNodes) setText(built.time, relativeAge(built.at));
@@ -1469,6 +1484,96 @@ async function loadBalances() {
     render(lastState);
     renderWatchlist();
   } catch (error) { console.error("balances", error); }
+}
+
+function ponsGraduationIsFresh(item, now = Date.now()) {
+  const graduatedAt = Date.parse(item?.graduatedAt);
+  if (!Number.isFinite(graduatedAt)) return false;
+  return now - graduatedAt < ponsRetentionMinutes * 60 * 1000;
+}
+
+function renderPonsGraduations() {
+  const now = Date.now();
+  const rows = [...ponsItems]
+    .filter(item => ponsGraduationIsFresh(item, now))
+    .sort((a, b) => Date.parse(b.graduatedAt || "") - Date.parse(a.graduatedAt || ""));
+  const frag = document.createDocumentFragment();
+
+  for (const item of rows) {
+    const tr = document.createElement("tr");
+
+    const when = document.createElement("td");
+    when.textContent = item.graduatedAtLocal || "—";
+    tr.appendChild(when);
+
+    const url = tokenUrl(item);
+    for (const value of [item.symbol || "?", item.name || "?"]) {
+      const td = document.createElement("td");
+      const link = document.createElement("a");
+      link.className = "pons-token-link";
+      link.textContent = value;
+      if (url) {
+        link.href = url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+      }
+      td.appendChild(link);
+      tr.appendChild(td);
+    }
+
+    const pair = document.createElement("td");
+    pair.textContent = item.pair || "?";
+    tr.appendChild(pair);
+
+    const mc = document.createElement("td");
+    mc.textContent = formatCompactUsd(item.marketCapUsd);
+    tr.appendChild(mc);
+
+    const duration = document.createElement("td");
+    duration.textContent = item.duration || "?";
+    tr.appendChild(duration);
+
+    const contract = document.createElement("td");
+    const copy = document.createElement("button");
+    copy.type = "button";
+    copy.className = "pons-contract-copy";
+    copy.title = `Copy ${item.contract || "contract"}`;
+    const label = document.createElement("span");
+    label.className = "contract-label";
+    label.textContent = shortAddress(item.contract);
+    const icon = document.createElement("span");
+    icon.className = "copy-icon";
+    icon.textContent = "⧉";
+    copy.append(label, icon);
+    copy.addEventListener("click", () => copyAddress(item.contract || "", copy));
+    contract.appendChild(copy);
+    tr.appendChild(contract);
+
+    frag.appendChild(tr);
+  }
+
+  ponsBody.replaceChildren(frag);
+  ponsEmpty.textContent = ponsItems.length
+    ? `No PONS graduations in the last ${ponsRetentionMinutes} min.`
+    : "Waiting for new PONS graduations…";
+  ponsEmpty.hidden = rows.length > 0;
+  ponsUpdatedCount = rows.length;
+  setText(ponsTabCount, String(rows.length));
+  updatePonsUpdatedLabel();
+}
+
+async function loadPonsGraduations() {
+  try {
+    const response = await fetch("/api/pons/graduations", { cache: "no-store" });
+    if (!response.ok) throw new Error(`PONS HTTP ${response.status}`);
+    const data = await response.json();
+    ponsItems = Array.isArray(data.graduations) ? data.graduations : [];
+    ponsUpdatedAtMs = Date.parse(data.updatedAt);
+    ponsUpdatedFallback = data.lastError || "Waiting for new PONS graduations";
+    renderPonsGraduations();
+  } catch (error) {
+    console.error("PONS graduations", error);
+  }
 }
 
 function formatLogTime(value) {
@@ -1795,6 +1900,7 @@ function showView(view) {
   currentView = view;
   alertsView.hidden = view !== "alerts";
   trendingView.hidden = view !== "trending";
+  ponsView.hidden = view !== "pons";
   followingView.hidden = view !== "following";
   watchlistView.hidden = view !== "watchlist";
   balanceView.hidden = view !== "balance";
@@ -1802,6 +1908,7 @@ function showView(view) {
   favAlertsView.hidden = view !== "favAlerts";
   alertsTab.classList.toggle("active", view === "alerts");
   trendingTab.classList.toggle("active", view === "trending");
+  ponsTab.classList.toggle("active", view === "pons");
   followingTab.classList.toggle("active", view === "following");
   watchlistTab.classList.toggle("active", view === "watchlist");
   balanceTab.classList.toggle("active", view === "balance");
@@ -1811,6 +1918,7 @@ function showView(view) {
   if (view === "log") renderLog(lastLogData);
   if (view === "favAlerts") renderFavoriteAlerts(lastLogData);
   if (view === "following") loadFollowing();
+  if (view === "pons") loadPonsGraduations();
   if (view === "watchlist") loadWatchlist();
   if (view === "balance") loadBalances();
   if (view === "log" || view === "favAlerts") loadLog();
@@ -2067,11 +2175,18 @@ function updateBalanceUpdatedLabel() {
     : balanceUpdatedFallback;
 }
 
+function updatePonsUpdatedLabel() {
+  ponsUpdated.textContent = Number.isFinite(ponsUpdatedAtMs)
+    ? `${ponsUpdatedCount} graduations · Updated ${relativeAge(ponsUpdatedAtMs)} ago`
+    : ponsUpdatedFallback;
+}
+
 function tickLiveUi() {
   renderRefreshClock(balanceRefreshStatus, refreshClocks.balance);
   renderRefreshClock(followingRefreshStatus, refreshClocks.following);
   updateFollowingUpdatedLabel();
   updateBalanceUpdatedLabel();
+  updatePonsUpdatedLabel();
   for (const item of favAlertTimeNodes) setText(item.node, relativeAge(item.at));
 }
 
@@ -2250,14 +2365,32 @@ inactiveForm.addEventListener("submit", async (event) => {
   }
 });
 
+ponsRetentionInput.value = String(ponsRetentionMinutes);
+ponsRetentionStatus.textContent = `Saved · removes after ${ponsRetentionMinutes} min`;
+ponsRetentionForm.addEventListener("submit", event => {
+  event.preventDefault();
+  ponsRetentionStatus.classList.remove("is-ok", "is-error");
+  const value = Number(ponsRetentionInput.value);
+  if (!Number.isInteger(value) || value < MIN_RETENTION_MINUTES || value > MAX_RETENTION_MINUTES) {
+    ponsRetentionStatus.textContent = `Enter ${MIN_RETENTION_MINUTES}–${MAX_RETENTION_MINUTES} min`;
+    ponsRetentionStatus.classList.add("is-error");
+    return;
+  }
+  ponsRetentionMinutes = value;
+  localStorage.setItem(PONS_RETENTION_STORAGE_KEY, String(value));
+  ponsRetentionStatus.textContent = `Saved · removes after ${value} min`;
+  ponsRetentionStatus.classList.add("is-ok");
+  renderPonsGraduations();
+});
+
 favAlertsRetentionInput.value = String(favAlertsRetentionMinutes);
 favAlertsRetentionStatus.textContent = `Saved · removes after ${favAlertsRetentionMinutes} min`;
 favAlertsRetentionForm.addEventListener("submit", event => {
   event.preventDefault();
   favAlertsRetentionStatus.classList.remove("is-ok", "is-error");
   const value = Number(favAlertsRetentionInput.value);
-  if (!Number.isInteger(value) || value < MIN_FAV_ALERTS_RETENTION_MINUTES || value > MAX_FAV_ALERTS_RETENTION_MINUTES) {
-    favAlertsRetentionStatus.textContent = `Enter ${MIN_FAV_ALERTS_RETENTION_MINUTES}–${MAX_FAV_ALERTS_RETENTION_MINUTES} min`;
+  if (!Number.isInteger(value) || value < MIN_RETENTION_MINUTES || value > MAX_RETENTION_MINUTES) {
+    favAlertsRetentionStatus.textContent = `Enter ${MIN_RETENTION_MINUTES}–${MAX_RETENTION_MINUTES} min`;
     favAlertsRetentionStatus.classList.add("is-error");
     return;
   }
@@ -2346,6 +2479,7 @@ setInterval(refreshAuthStatus, 15000);
 
 alertsTab.addEventListener("click", () => showView("alerts"));
 trendingTab.addEventListener("click", () => showView("trending"));
+ponsTab.addEventListener("click", () => showView("pons"));
 followingTab.addEventListener("click", () => showView("following"));
 watchlistTab.addEventListener("click", () => showView("watchlist"));
 balanceTab.addEventListener("click", () => showView("balance"));
@@ -2355,8 +2489,10 @@ for (const th of document.querySelectorAll(".following-table th[data-sort]")) { 
 loadFollowing();
 loadWatchlist();
 loadBalances();
+loadPonsGraduations();
 setInterval(loadFollowing, 60_000);
 setInterval(loadWatchlist, 60_000);
 setInterval(loadBalances, 5_000);
+setInterval(loadPonsGraduations, 3_000);
 loadLog();
 setInterval(loadLog, 2_000);

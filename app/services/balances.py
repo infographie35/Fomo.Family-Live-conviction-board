@@ -154,6 +154,20 @@ class BalanceManager:
         async with self._lock:
             self._last_error = message
 
+    async def active_token_keys(self, account_user_id: str | None) -> set[str]:
+        """Return positive-balance token keys for the active Fomo account only."""
+        expected = str(account_user_id or "").strip() or None
+        if expected is None:
+            return set()
+        async with self._lock:
+            if self._account_user_id != expected:
+                return set()
+            return {
+                key
+                for key, item in self._balances.items()
+                if (amount := _number(item.get("amount"))) is not None and amount > 0
+            }
+
     async def snapshot(self, account_user_id: str | None) -> dict:
         """Expose balances only when the persisted snapshot belongs to the active account."""
         expected = str(account_user_id or "").strip() or None
