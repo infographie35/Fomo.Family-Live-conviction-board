@@ -1,0 +1,1421 @@
+:root {
+  color-scheme: dark;
+  --bg: #0b0d10;
+  --panel: #12161b;
+  --panel-2: #171c22;
+  --line: #262d35;
+  --line-strong: #343e49;
+  --text: #f3f6f8;
+  --muted: #8d98a5;
+  --buy: #76e7a0;
+  --sell: #ff7f8a;
+  --new: #ffd36b;
+  --accent: #9eb7ff;
+  --fresh: #FAB302;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+button { font: inherit; }
+
+.shell {
+  width: min(1440px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 28px 0 64px;
+}
+
+.topbar {
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+.eyebrow {
+  color: var(--accent);
+  font-size: 12px;
+  letter-spacing: .18em;
+  font-weight: 800;
+}
+
+h1 {
+  margin: 7px 0 4px;
+  font-size: clamp(28px, 4vw, 42px);
+  letter-spacing: -0.04em;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.status-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  white-space: nowrap;
+}
+
+.pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--buy);
+  box-shadow: 0 0 0 5px rgba(118, 231, 160, .08);
+}
+
+.muted {
+  color: var(--muted);
+  font-weight: 500;
+  letter-spacing: normal;
+}
+
+.summary {
+  display: flex;
+  gap: 0;
+  margin: 22px 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--panel);
+}
+
+.summary-item {
+  min-width: 0;
+  flex: 1;
+  padding: 14px 18px;
+  border-right: 1px solid var(--line);
+}
+
+.summary-item:last-child { border-right: 0; }
+
+.summary-label {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  margin-bottom: 5px;
+}
+
+.summary strong {
+  font-size: 24px;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.section {
+  margin-top: 30px;
+}
+
+.section[hidden] { display: none; }
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.section-rule {
+  height: 1px;
+  background: var(--line-strong);
+  flex: 1;
+}
+
+.section-title {
+  color: #c9d0d7;
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: .12em;
+  white-space: nowrap;
+}
+
+.section-count {
+  color: var(--muted);
+  font-weight: 650;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+.token-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px;
+  min-width: 0;
+  overflow: hidden;
+  transition: border-color .45s ease;
+}
+
+.token-card:hover {
+  border-color: var(--line-strong);
+}
+
+.card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.token-identity {
+  display: flex;
+  min-width: 0;
+  gap: 11px;
+  align-items: center;
+}
+
+.token-avatar {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border-radius: 10px;
+  background:
+    linear-gradient(135deg, rgba(158,183,255,.22), rgba(118,231,160,.09)),
+    var(--panel-2);
+  border: 1px solid var(--line);
+  background-size: cover;
+  background-position: center;
+}
+
+.token-title-wrap { min-width: 0; }
+
+.token-title-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+}
+
+.ticker {
+  margin: 0;
+  min-width: 0;
+  font-size: 19px;
+  letter-spacing: -0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ticker-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.ticker-link[href]:hover {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* In ALERTS, the token name inherits the same favorite yellow used for followed
+   traders when at least one active or cooldown-visible buyer is a local favorite. */
+.ticker-link.favorite-buyer-token,
+.ticker-link.favorite-buyer-token[href]:hover {
+  color: #ffc857;
+  text-shadow: 0 0 12px rgba(255,190,70,.12);
+}
+
+.new-badge {
+  flex: 0 0 auto;
+  border: 1px solid rgba(255, 211, 107, .42);
+  background: rgba(255, 211, 107, .10);
+  color: var(--new);
+  border-radius: 999px;
+  padding: 3px 7px;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .1em;
+}
+
+.copy-address {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 5px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  max-width: 220px;
+}
+
+.copy-address:hover { color: var(--text); }
+
+.address-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.copy-icon { font-size: 14px; }
+
+.current-mc {
+  text-align: right;
+  flex: 0 0 auto;
+}
+
+.current-mc span {
+  display: block;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: .11em;
+}
+
+.current-mc-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 7px;
+  margin-top: 3px;
+}
+
+.current-mc strong {
+  display: block;
+  font-size: 20px;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.current-mc-change {
+  font-size: 11px;
+  font-weight: 850;
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+}
+
+.current-mc.is-up .current-mc-value,
+.current-mc.is-up .current-mc-change {
+  color: var(--buy);
+}
+
+.current-mc.is-down .current-mc-value,
+.current-mc.is-down .current-mc-change {
+  color: var(--sell);
+}
+
+.current-mc.is-flat .current-mc-change {
+  color: var(--muted);
+}
+
+/* Order-flow strip: 60-minute window, one tick per BUY/SELL, height on a log
+   scale of the USD size. Clustering is the signal the buyer list cannot show. */
+.conviction {
+  margin-top: 14px;
+}
+
+.conviction-spark {
+  height: 26px;
+}
+
+.conviction-spark svg {
+  display: block;
+  width: 100%;
+  height: 26px;
+}
+
+.conviction-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2px;
+  color: #5d6873;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+.buyers {
+  margin-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+/* Two-level row: identity + size on top, context below. Nothing here is a
+   fixed track, so the row cannot overflow the card at any width. */
+.buyer-row {
+  position: relative;
+  padding: 9px 0 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.buyer-main {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+
+.buyer-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 720;
+}
+
+.buyer-amount {
+  flex: 0 0 auto;
+  color: var(--buy);
+  font-size: 13px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Size is also encoded typographically so a $15 fill never reads like a $22K one. */
+.buyer-amount.amt-lo { font-size: 12px; font-weight: 700; opacity: .68; }
+.buyer-amount.amt-hi { font-size: 14px; }
+
+.buyer-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 7px;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.buyer-meta .sep { color: #4d5761; }
+
+.buyer-mc strong {
+  color: #dfe5ea;
+  font-weight: 700;
+}
+
+/* Log-scaled size bar, $10 -> $50K, shared by every card so widths compare. */
+.buyer-weight {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 100%;
+  height: 2px;
+}
+
+.buyer-weight i {
+  display: block;
+  height: 100%;
+  background: rgba(118, 231, 160, .34);
+}
+
+.sold-row .buyer-weight i { background: rgba(255, 127, 138, .30); }
+
+.buyers-toggle {
+  margin-top: 8px;
+  padding: 6px 0;
+  border: 0;
+  background: transparent;
+  color: #7b8692;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  cursor: pointer;
+  text-align: left;
+}
+
+.buyers-toggle:hover { color: var(--accent); }
+
+.card-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 11px;
+  color: #66717c;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+@media (max-width: 720px) {
+  .shell {
+    width: min(100% - 20px, 1440px);
+    padding-top: 18px;
+  }
+
+  .topbar {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .summary { flex-direction: column; }
+
+  .summary-item {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .summary-item:last-child { border-bottom: 0; }
+
+  .cards { grid-template-columns: 1fr; }
+}
+
+.cutoff-control {
+  flex: 1.15;
+  min-width: 240px;
+  padding: 12px 18px;
+}
+
+.cutoff-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.cutoff-row input {
+  width: 110px;
+  min-width: 0;
+  background: #0e1216;
+  border: 1px solid var(--line-strong);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 8px 10px;
+  outline: none;
+}
+
+.cutoff-row input:focus {
+  border-color: var(--accent);
+}
+
+.cutoff-row button {
+  border: 1px solid var(--line-strong);
+  background: var(--panel-2);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: 750;
+}
+
+.cutoff-row button:hover {
+  border-color: var(--accent);
+}
+
+.cutoff-status {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.cutoff-status.is-error {
+  color: var(--sell);
+}
+
+.cutoff-status.is-ok {
+  color: var(--buy);
+}
+
+.sold-row .buyer-name,
+.sold-row .buyer-meta,
+.sold-row .buyer-mc strong {
+  color: #65707b;
+}
+
+.sold-row .buyer-name {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.sold-row .buyer-amount {
+  color: var(--sell);
+  opacity: .85;
+}
+
+.sold-pill {
+  color: var(--sell);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  opacity: .8;
+}
+
+.status-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 7px;
+}
+
+.auth-status {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .06em;
+}
+
+.auth-status.is-ok {
+  color: var(--buy);
+}
+
+.auth-status.is-error {
+  color: var(--sell);
+}
+
+.chain-filter-control {
+  min-width: 175px;
+  padding: 12px 18px;
+  border-right: 1px solid var(--line);
+}
+
+.token-age-filter-control {
+  min-width: 155px;
+  padding: 12px 18px;
+  border-right: 1px solid var(--line);
+}
+
+.chain-filter-control select,
+.token-age-filter-control select {
+  width: 100%;
+  background: #0e1216;
+  border: 1px solid var(--line-strong);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 8px 10px;
+  outline: none;
+  cursor: pointer;
+}
+
+.chain-filter-control select:focus,
+.token-age-filter-control select:focus {
+  border-color: var(--accent);
+}
+
+.chain-filter-status,
+.token-age-filter-status {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.market-stats {
+  flex: 0 0 auto;
+  text-align: right;
+}
+
+.secondary-market-stats {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+
+.secondary-market-stats strong {
+  color: #cbd3da;
+  font-size: 10px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 720px) {
+  .chain-filter-control,
+  .token-age-filter-control {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+}
+
+/* Alert-group accents make conviction scannable without coloring whole cards. */
+.section-2 .section-title { color: #d9dee4; }
+.section-2 .token-card { border-color: #35404b; }
+.section-3plus .section-title { color: #ffffff; }
+.section-3plus .token-card { border-color: #5b6c7d; box-shadow: inset 4px 0 0 #a7b3bf; }
+
+/* Blockchain is encoded only on the compact footer badge, leaving card color
+   available for alert priority. Text switches for contrast on bright bands. */
+.chain-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 3px 8px;
+  border-radius: 5px;
+  color: #fff;
+  font-weight: 850;
+  letter-spacing: .06em;
+}
+.chain-robinhood { background: #1FA140; }
+.chain-bnb { background: #F5BF11; color: #17130a; }
+.chain-solana { background: #6573C7; }
+.chain-base { background: #10659C; }
+.chain-eth { background: #878787; }
+
+/* Filters are useful but intentionally quieter than live conviction metrics. */
+.chain-filter-control,
+.token-age-filter-control,
+.cutoff-control {
+  background: #0e1115;
+}
+.chain-filter-control .summary-label,
+.token-age-filter-control .summary-label,
+.cutoff-control .summary-label,
+.chain-filter-status,
+.token-age-filter-status,
+.cutoff-status {
+  opacity: .72;
+}
+
+/* Partial exits stay in the active buyer count. This compact badge exposes the
+   reconstructed position remaining without turning every SELL into a new row. */
+.position-left {
+  color: #f0c96a;
+  background: rgba(245, 191, 17, .10);
+  border: 1px solid rgba(245, 191, 17, .24);
+  border-radius: 5px;
+  padding: 1px 5px;
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+
+/* Inactivity cleanup is an operational setting, kept visually secondary like
+   the MC cutoff. Empty means disabled; the unit stays visible beside the input. */
+.inactive-control {
+  flex: 1.2;
+  min-width: 265px;
+  padding: 12px 18px;
+  background: #0e1115;
+}
+
+.inactive-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.hours-input-wrap {
+  display: flex;
+  align-items: center;
+  width: 105px;
+  background: #0e1216;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+}
+
+.hours-input-wrap:focus-within { border-color: var(--accent); }
+
+.hours-input-wrap input {
+  width: 70px;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text);
+  padding: 8px 4px 8px 10px;
+}
+
+.hours-input-wrap span {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.inactive-row button {
+  border: 1px solid var(--line-strong);
+  background: var(--panel-2);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: 750;
+}
+
+.inactive-row button:hover { border-color: var(--accent); }
+
+.inactive-status {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 10px;
+  opacity: .72;
+}
+
+.inactive-status.is-error { color: var(--sell); opacity: 1; }
+.inactive-status.is-ok { color: var(--buy); opacity: 1; }
+
+.card-foot-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.forget-token {
+  min-height: 20px;
+  padding: 2px 7px;
+  border: 1px solid #3d444c;
+  border-radius: 5px;
+  background: transparent;
+  color: #707a84;
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: .06em;
+  cursor: pointer;
+}
+
+.forget-token:hover {
+  color: #ff7b89;
+  border-color: rgba(255, 92, 111, .55);
+  background: rgba(255, 92, 111, .08);
+}
+
+.forget-token:disabled {
+  cursor: default;
+  opacity: .45;
+}
+
+@media (max-width: 720px) {
+  .inactive-control { border-bottom: 1px solid var(--line); }
+}
+
+/* Fresh-fill marker: 120s amber outline on any card that just took a BUY/SELL.
+   Declared last so it wins over the per-section border colors above. */
+.token-card.is-fresh,
+.section-2 .token-card.is-fresh,
+.section-3 .token-card.is-fresh,
+.section-3plus .token-card.is-fresh {
+  border-color: var(--fresh);
+}
+
+/* Layout selector. This is presentation-only: both modes reuse the same cards,
+   state reconciliation, filters and actions. */
+.layout-control {
+  min-width: 190px;
+  padding: 12px 18px;
+  background: #0e1115;
+}
+
+.layout-switch {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: .07em;
+  cursor: pointer;
+  user-select: none;
+}
+
+.layout-switch input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.layout-switch-track {
+  position: relative;
+  width: 34px;
+  height: 18px;
+  flex: 0 0 34px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: #0b0f13;
+}
+
+.layout-switch-track i {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #78838e;
+  transition: transform .16s ease, background .16s ease;
+}
+
+.layout-switch input:checked + .layout-switch-track i {
+  transform: translateX(16px);
+  background: var(--accent);
+}
+
+.layout-switch input:focus-visible + .layout-switch-track {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.layout-status {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 10px;
+  opacity: .72;
+}
+
+/* Lanes use the extra desktop width deliberately. Each conviction level owns
+   one stable vertical viewport, so a busy 1-alert queue can never push 3+
+   signals off screen. Recent exits remain a normal section below the lanes. */
+.shell.shell-lanes {
+  width: min(1780px, calc(100% - 24px));
+}
+
+.board.layout-lanes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
+  margin-top: 22px;
+}
+
+.board.layout-lanes .alert-lane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  /* Lane height follows its card stack and is capped only at ten cards;
+     browser viewport position never changes lane geometry. */
+  margin-top: 0;
+  padding: 0 8px 8px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(14, 17, 21, .42);
+}
+
+.board.layout-lanes .alert-lane .section-header {
+  flex: 0 0 auto;
+  margin: 0 -8px 6px;
+  padding: 11px 10px 9px;
+  background: #0f1317;
+  border-bottom: 1px solid var(--line);
+  border-radius: 12px 12px 0 0;
+}
+
+.board.layout-lanes .alert-lane .section-rule { display: none; }
+
+.board.layout-lanes .alert-lane .section-title {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Each buyer lane scrolls independently. The header shortcut resets only its
+   own card list, which is useful when a lane contains a long token history. */
+.lane-back-to-top { display: none; }
+.board.layout-lanes .alert-lane .lane-back-to-top {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  padding: 2px 8px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.board.layout-lanes .alert-lane .lane-back-to-top:hover,
+.board.layout-lanes .alert-lane .lane-back-to-top:focus-visible {
+  color: var(--accent);
+  outline: none;
+}
+
+.board.layout-lanes .alert-lane .cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  overflow-x: hidden;
+  padding: 2px 3px 6px 0;
+}
+
+/* Two or more cards can always be panned vertically. The viewport itself is
+   never compressed: it is the natural stack height up to the ten-card cap. */
+.board.layout-lanes .alert-lane .cards.lane-can-pan {
+  height: var(--lane-visible-height);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #3b4550 transparent;
+}
+
+/* Scroll runway: with 2-10 cards there is otherwise no native overflow. This
+   empty tail lets the last card be brought toward the top without changing
+   card geometry or limiting the lane to the browser viewport. */
+.board.layout-lanes .alert-lane .cards.lane-can-pan::after {
+  content: "";
+  display: block;
+  flex: 0 0 var(--lane-pan-tail, 0px);
+  width: 1px;
+  pointer-events: none;
+}
+
+.board.layout-lanes .alert-lane .cards.lane-can-pan::-webkit-scrollbar { width: 5px; }
+.board.layout-lanes .alert-lane .cards.lane-can-pan::-webkit-scrollbar-track { background: transparent; }
+.board.layout-lanes .alert-lane .cards.lane-can-pan::-webkit-scrollbar-thumb {
+  background: #3b4550;
+  border-radius: 999px;
+}
+.board.layout-lanes .alert-lane .cards.lane-can-pan::-webkit-scrollbar-thumb:hover { background: #53606d; }
+
+.board.layout-lanes .alert-lane .token-card {
+  flex: 0 0 auto;
+  width: 100%;
+  padding: 14px;
+}
+
+.board.layout-lanes .section-exits {
+  grid-column: 1 / -1;
+  margin-top: 14px;
+}
+
+.board.layout-lanes .section-exits .cards {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 1200px) {
+  /* Three lanes are a desktop workspace. On narrower windows the chosen mode is
+     retained, but lanes stack to keep cards usable instead of squeezing data. */
+  .board.layout-lanes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .board.layout-lanes .section-exits { grid-column: 1 / -1; }
+  .board.layout-lanes .section-exits .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 720px) {
+  .layout-control { border-bottom: 1px solid var(--line); }
+  .board.layout-lanes { grid-template-columns: 1fr; }
+  .board.layout-lanes .section-exits { grid-column: 1; }
+  .board.layout-lanes .section-exits .cards { grid-template-columns: 1fr; }
+}
+
+
+/* Dashboard views share one shell; switching tabs keeps the live board intact
+   without duplicating page-level navigation or application state. */
+.view-tabs { display:flex; gap:6px; margin:18px 0 4px; border-bottom:1px solid var(--line); }
+.view-tab { border:0; border-bottom:2px solid transparent; padding:9px 14px; background:transparent; color:var(--muted); font-size:11px; font-weight:850; letter-spacing:.08em; cursor:pointer; }
+.view-tab.active { color:#eef3f6; border-bottom-color:#d8dee3; }
+.following-view { margin-top:22px; }
+.following-head { display:flex; align-items:end; justify-content:space-between; gap:20px; margin-bottom:12px; }
+.following-head h2 { margin:0; font-size:20px; }
+.following-head p { margin:4px 0 0; color:var(--muted); font-size:12px; }
+.following-table-wrap { overflow:auto; border:1px solid var(--line); border-radius:12px; background:rgba(14,17,21,.55); }
+.following-table { width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; }
+.following-table th { position:sticky; top:0; padding:11px 14px; text-align:left; background:#0f1317; color:#7f8993; font-size:10px; letter-spacing:.08em; cursor:pointer; }
+.following-table td { padding:10px 14px; border-top:1px solid var(--line); font-size:12px; }
+.following-trader { display:flex; align-items:center; gap:9px; min-width:220px; }
+.following-trader img { width:30px; height:30px; border-radius:50%; object-fit:cover; background:#20262c; }
+.following-trader span { display:flex; flex-direction:column; min-width:0; }
+.following-trader strong { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.following-trader small { color:var(--muted); margin-top:2px; }
+.favorite-toggle { border:0; background:transparent; font-size:17px; cursor:pointer; padding:2px 5px; }
+.favorite-profile .following-trader strong, .favorite-trader { color:#ffc857; text-shadow:0 0 12px rgba(255,190,70,.12); }
+.following-empty { padding:30px; text-align:center; color:var(--muted); }
+.pnl-positive { color:#76e7a0 !important; }
+.pnl-negative { color:#ff7f8a !important; }
+.trader-stats { margin-left:2px; }
+
+/* Token watchlist is a routing choice, not a second tracking engine. The star
+   moves a card out of ALERTS while the backend continues processing it. */
+.token-watchlist-toggle {
+  flex: 0 0 auto;
+  border: 0;
+  background: transparent;
+  color: #68727c;
+  font-size: 19px;
+  line-height: 1;
+  padding: 0 1px;
+  cursor: pointer;
+  transform: translateY(-1px);
+}
+.token-watchlist-toggle:hover,
+.token-watchlist-toggle.is-watched { color: #ffc857; }
+.cached-badge {
+  padding: 2px 5px;
+  border: 1px solid #4a535c;
+  border-radius: 5px;
+  color: #8d98a3;
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: .08em;
+}
+.watchlist-view { margin-top: 22px; }
+.watchlist-cards { margin-top: 12px; }
+
+/* BALANCE reuses the compact table language from FOLLOWING. The card marker is
+   intentionally text-sized: noticeable when present without competing with NEW. */
+.holding-badge { color:#7ee2a8; font-size:10px; font-weight:800; letter-spacing:-.08em; white-space:nowrap; }
+.balance-summary { display:flex; gap:24px; margin:0 0 12px; color:var(--muted); font-size:10px; font-weight:800; letter-spacing:.08em; }
+.balance-summary strong { margin-left:6px; color:#eef3f6; font-size:13px; letter-spacing:0; }
+.balance-token { display:flex; align-items:center; gap:9px; min-width:220px; }
+.balance-token img { width:30px; height:30px; border-radius:50%; object-fit:cover; background:#20262c; }
+.balance-token span { display:flex; flex-direction:column; min-width:0; }
+.balance-token strong { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.balance-token small { color:var(--muted); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:280px; }
+.pnl-positive { color:#66d394; }
+.pnl-negative { color:#ff7777; }
+
+/* Each ALERTS header exposes its own inclusive MIN/MAX buyer range. MAX may
+   be left blank for an open-ended range; columns are intentionally independent. */
+.buyer-range-editor {
+  display:inline-flex; align-items:center; gap:4px; white-space:nowrap;
+}
+.buyer-range-editor > span { font-size:9px; }
+.buyer-range-input {
+  width:32px; height:22px; padding:1px 2px; border:1px solid #3a444e;
+  border-radius:5px; outline:0; background:#0b0f13; color:inherit;
+  text-align:center; font:inherit; letter-spacing:0; font-variant-numeric:tabular-nums;
+}
+.buyer-range-input:focus { border-color:var(--accent); }
+.buyer-range-input.is-error { border-color:var(--sell); }
+.buyer-range-input::-webkit-inner-spin-button,
+.buyer-range-input::-webkit-outer-spin-button { margin:0; opacity:.35; }
+
+/* Balance rescans are performed by the backend, independently of the browser
+   bridge. The setting mirrors the compact operational controls above. */
+.balance-refresh-control {
+  flex: .9;
+  min-width: 210px;
+  padding: 12px 18px;
+  background: #0e1115;
+}
+.balance-refresh-row { display:flex; gap:8px; align-items:center; }
+.seconds-input-wrap {
+  display:flex; align-items:center; width:105px; background:#0e1216;
+  border:1px solid var(--line-strong); border-radius:8px;
+}
+.seconds-input-wrap:focus-within { border-color:var(--accent); }
+.seconds-input-wrap input {
+  width:70px; min-width:0; border:0; outline:0; background:transparent;
+  color:var(--text); padding:8px 4px 8px 10px;
+}
+.seconds-input-wrap span { color:var(--muted); font-size:10px; font-weight:800; }
+.balance-refresh-row button {
+  border:1px solid var(--line-strong); background:var(--panel-2); color:var(--text);
+  border-radius:8px; padding:8px 12px; cursor:pointer; font-weight:750;
+}
+.balance-refresh-row button:hover { border-color:var(--accent); }
+.balance-refresh-status { display:block; margin-top:6px; color:var(--muted); font-size:10px; opacity:.72; }
+.balance-refresh-status.is-error { color:var(--sell); opacity:1; }
+.balance-refresh-status.is-ok { color:var(--buy); opacity:1; }
+
+/* Portfolio chain recap reuses the exact ALERTS blockchain palette. Zero-count
+   chains are omitted; a chain appears automatically as soon as it has a balance. */
+.balance-chain-summary { display:inline-flex; align-items:center; gap:7px; letter-spacing:0; }
+.balance-chain-count { padding:3px 7px; border-radius:5px; color:#fff; font-size:10px; font-weight:850; }
+.balance-chain-count.chain-bnb { color:#17130a; }
+.balance-chain-separator { color:var(--muted); font-weight:700; }
+
+/* The yellow star sits immediately after each buyer-range title. It filters
+   only that column to tokens bought by a locally favorited Following profile. */
+.lane-favorite-filter {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  margin-left:5px;
+  padding:0 2px;
+  border:0;
+  background:transparent;
+  color:#F5BF11;
+  opacity:.38;
+  font-size:14px;
+  line-height:1;
+  cursor:pointer;
+  vertical-align:middle;
+}
+.lane-favorite-filter:hover,
+.lane-favorite-filter:focus-visible,
+.lane-favorite-filter.active { opacity:1; }
+.lane-favorite-filter.active { text-shadow:0 0 8px rgba(245,191,17,.45); }
+
+.board.layout-lanes .alert-lane .section-title { justify-content:flex-start; gap:4px; }
+.board.layout-lanes .alert-lane .lane-favorite-filter { margin-left:1px; }
+.board.layout-lanes .alert-lane .lane-back-to-top { margin-left:auto; margin-right:auto; }
+
+/* LOG mirrors Fomo's compact feed while keeping diagnostic match/outcome data visible. */
+/* LOG filters are display-only: they never change the WS collector or persisted session log. */
+.log-filter-panel { margin:14px 0 10px; padding:12px; border:1px solid var(--line); border-radius:12px; background:rgba(14,17,21,.5); }
+.log-filter-search-row { display:flex; gap:10px; align-items:flex-end; }
+.log-search-field { flex:1 1 440px; min-width:240px; }
+.log-filter-panel label { display:flex; flex-direction:column; gap:5px; min-width:0; }
+.log-filter-panel label > span { font-size:9px; font-weight:850; letter-spacing:.08em; color:var(--muted); }
+.log-filter-panel input, .log-filter-panel select, .log-filter-panel button { box-sizing:border-box; height:34px; border:1px solid #303942; border-radius:8px; background:#10151a; color:#eef3f6; font:inherit; }
+.log-filter-panel input, .log-filter-panel select { width:100%; padding:0 10px; outline:none; }
+.log-filter-panel input:focus, .log-filter-panel select:focus { border-color:#6d89a8; box-shadow:0 0 0 2px rgba(109,137,168,.14); }
+.log-filter-panel input::placeholder { color:#687684; }
+.log-filter-search-row .log-filter-clear { flex:0 0 auto; padding:0 14px; color:#b9c3cc; cursor:pointer; }
+.log-filter-search-row .log-filter-clear:hover { color:#fff; border-color:#536170; }
+.log-filter-grid { display:grid; grid-template-columns:repeat(9,minmax(92px,1fr)); gap:8px; margin-top:9px; }
+.log-filter-grid .log-favorite-filter button { width:100%; padding:0 10px; color:#b9c3cc; cursor:pointer; }
+.log-filter-grid .log-favorite-filter button.active { color:#ffd84d; border-color:#806d24; background:rgba(255,216,77,.08); }
+.log-summary { display:flex; gap:18px; align-items:center; margin:12px 0; font-size:11px; color:var(--muted); }
+#logFilterStatus { color:#b9c3cc; font-weight:750; }
+@media (max-width: 1250px) { .log-filter-grid { grid-template-columns:repeat(5,minmax(105px,1fr)); } }
+@media (max-width: 760px) { .log-filter-search-row { align-items:stretch; flex-direction:column; } .log-filter-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .log-search-field { flex-basis:auto; min-width:0; } }
+.log-summary strong { color:#eef3f6; }
+.log-feed { border:1px solid var(--line); border-radius:12px; background:rgba(14,17,21,.55); overflow:hidden; }
+.log-row { display:grid; grid-template-columns:minmax(150px,1.2fr) 54px minmax(110px,.9fr) 88px 100px minmax(130px,1fr) 82px; gap:10px; align-items:center; padding:10px 14px; border-top:1px solid var(--line); font-size:12px; }
+.log-row:first-child { border-top:0; }
+.log-trader, .log-token { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:800; }
+.log-side { font-weight:900; font-size:10px; letter-spacing:.05em; }
+.log-side.buy { color:#5de69a; }
+.log-side.sell { color:#ff6b70; }
+.log-match { display:flex; gap:5px; align-items:center; white-space:nowrap; }
+.log-badge { border:1px solid var(--line); border-radius:999px; padding:3px 6px; color:var(--muted); font-size:9px; font-weight:850; letter-spacing:.04em; }
+.log-badge.following { color:#b9d5ff; border-color:#355a80; }
+.log-badge.favorite { color:#ffd84d; border-color:#806d24; }
+.log-outcome { font-size:9px; font-weight:900; letter-spacing:.04em; }
+.log-outcome.accepted { color:#5de69a; }
+.log-outcome.ignored { color:#ff8c91; }
+.log-time { color:var(--muted); text-align:right; white-space:nowrap; }
+@media (max-width: 1000px) { .log-row { grid-template-columns:minmax(130px,1fr) 50px minmax(90px,1fr) 75px 90px; } .log-match, .log-time { display:none; } }
+
+/* FAV ALERTS is a session history built from the existing WS LOG. Yellow is
+   reserved for unread favorite BUYs; after the tab is opened it returns to the
+   same neutral tab styling as every other dashboard view. */
+.view-tab.has-unread:not(.active) {
+  color: #ffd84d;
+  border-bottom-color: #806d24;
+  background: rgba(245, 191, 17, .06);
+  text-shadow: 0 0 10px rgba(245, 191, 17, .18);
+}
+#favAlertsTabCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  margin-left: 4px;
+  padding: 0 5px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 9px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+#favAlertsTabCount[hidden] { display: none; }
+.fav-alerts-retention {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 750;
+}
+.fav-alerts-retention input {
+  width: 66px;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #0e1216;
+  color: var(--text);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+.fav-alerts-retention button {
+  padding: 6px 9px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+}
+.fav-alerts-retention button:hover { border-color: var(--line-strong); }
+.fav-alerts-retention .is-ok { color: var(--buy); }
+.fav-alerts-retention .is-error { color: var(--sell); }
+.fav-alerts-summary {
+  display: flex;
+  gap: 24px;
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+.fav-alerts-summary strong {
+  margin-left: 6px;
+  color: #eef3f6;
+  font-size: 13px;
+  letter-spacing: 0;
+}
+.fav-alerts-feed {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(390px, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+.fav-alert-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+}
+.fav-alert-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 14px 9px;
+}
+.fav-alert-identity {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+.fav-alert-ticker {
+  overflow: hidden;
+  color: #ffd84d;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 15px;
+}
+.fav-alert-ticker[href]:hover { color: #fff0a6; text-decoration: underline; }
+.fav-alert-head .chain-badge {
+  min-height: 18px;
+  padding: 2px 6px;
+  font-size: 9px;
+}
+.fav-contract-copy {
+  display: flex;
+  width: calc(100% - 28px);
+  align-items: center;
+  gap: 8px;
+  margin: 0 14px 10px;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #0e1216;
+  color: var(--muted);
+  cursor: pointer;
+  text-align: left;
+}
+.fav-contract-copy:hover { color: var(--text); border-color: var(--line-strong); }
+.fav-contract-copy > span:first-child {
+  min-width: 0;
+  flex: 1;
+  overflow-wrap: anywhere;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+}
+.fav-buy-list { border-top: 1px solid var(--line); }
+.fav-buy-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 1.2fr) minmax(118px, 1fr) 70px 82px auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 14px;
+  border-top: 1px solid var(--line);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.fav-buy-row:first-child { border-top: 0; }
+.fav-buy-trader {
+  min-width: 0;
+  overflow: hidden;
+  color: #ffd84d;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 850;
+}
+.fav-buy-link {
+  color: #b9d5ff;
+  text-decoration: none;
+  white-space: nowrap;
+  font-weight: 750;
+}
+.fav-buy-link[href]:hover { color: #eef3f6; }
+.fav-buy-link:not([href]) { color: var(--muted); }
+.fav-buy-amount { color: var(--buy); font-weight: 850; text-align: right; }
+.fav-buy-mc { color: var(--muted); text-align: right; white-space: nowrap; }
+.fav-buy-status {
+  color: #ffd84d;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+.fav-buy-status.sold { color: var(--sell); }
+@media (max-width: 720px) {
+  .view-tabs { overflow-x: auto; }
+  .view-tab { flex: 0 0 auto; }
+  .fav-alerts-feed { grid-template-columns: 1fr; }
+  .fav-buy-row { grid-template-columns: minmax(0, 1fr) auto auto; }
+  .fav-buy-link { grid-column: 1 / 2; }
+  .fav-buy-amount, .fav-buy-mc { text-align: right; }
+  .fav-buy-status { grid-column: 1 / -1; }
+}
+
+/* TRENDING reuses the ALERTS visual language: neutral cards, the exact chain
+   badges and compact market hierarchy. Only the controls specific to ranking
+   are added; no separate theme or decorative palette is introduced. */
+.trending-view { margin-top: 22px; }
+.trending-head { margin-bottom: 12px; }
+.trending-filter-panel {
+  display:grid;
+  grid-template-columns:minmax(250px,2fr) repeat(5,minmax(110px,1fr)) auto;
+  gap:8px;
+  align-items:end;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:rgba(14,17,21,.5);
+}
+.trending-filter-panel label { display:flex; flex-direction:column; gap:5px; min-width:0; }
+.trending-filter-panel label > span { font-size:9px; font-weight:850; letter-spacing:.08em; color:var(--muted); }
+.trending-filter-panel input,
+.trending-filter-panel select,
+.trending-filter-panel button {
+  box-sizing:border-box; height:34px; border:1px solid #303942; border-radius:8px;
+  background:#10151a; color:#eef3f6; font:inherit;
+}
+.trending-filter-panel input,
+.trending-filter-panel select { width:100%; padding:0 10px; outline:none; }
+.trending-filter-panel input:focus,
+.trending-filter-panel select:focus { border-color:#6d89a8; box-shadow:0 0 0 2px rgba(109,137,168,.14); }
+.trending-filter-panel input::placeholder { color:#687684; }
+.trending-clear { padding:0 13px; color:#b9c3cc !important; cursor:pointer; }
+.trending-clear:hover { color:#fff !important; border-color:#536170; }
+.trending-summary { display:flex; gap:16px; align-items:center; margin:10px 2px 12px; color:var(--muted); font-size:10px; font-weight:800; letter-spacing:.07em; }
+.trending-summary strong { color:var(--text); font-variant-numeric:tabular-nums; }
+.trending-card { min-height:0; }
+.trending-card .trending-name { display:block; margin-top:3px; color:var(--muted); font-size:11px; text-decoration:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.trending-card .trending-name[href]:hover { color:var(--accent); text-decoration:underline; text-underline-offset:2px; }
+.trending-card .trending-meta { display:flex; justify-content:space-between; gap:12px; margin-top:14px; padding-top:12px; border-top:1px solid var(--line); color:var(--muted); font-size:10px; font-weight:750; }
+.trending-card .trending-meta strong { color:#dce3e9; font-variant-numeric:tabular-nums; }
+.trending-card .card-foot { margin-top:12px; }
+@media (max-width:1200px) { .trending-filter-panel { grid-template-columns:repeat(3,minmax(120px,1fr)); } .trending-search-field { grid-column:span 2; } }
+@media (max-width:720px) { .trending-filter-panel { grid-template-columns:repeat(2,minmax(0,1fr)); } .trending-search-field { grid-column:1/-1; } .trending-summary { flex-wrap:wrap; } }

@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fomo Alert Dashboard</title>
+  <link rel="stylesheet" href="/static/styles.css?v=36.11">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">FOMO WATCH</div>
+        <h1>Live conviction board</h1>
+        <p class="subtitle">Unique active positions. Partial sells stay tracked; dust exits close the trader.</p>
+      </div>
+      <div class="status-stack">
+        <div class="status-wrap">
+          <span class="pulse"></span>
+          <span id="connectionLabel">LIVE</span>
+          <span id="updatedAt" class="muted"></span>
+        </div>
+        <div id="authStatus" class="auth-status">AUTH · checking</div>
+      </div>
+    </header>
+
+    <nav class="view-tabs" aria-label="Dashboard views">
+      <button id="alertsTab" class="view-tab active" type="button">ALERTS</button>
+      <button id="trendingTab" class="view-tab" type="button">TRENDING <span id="trendingTabCount">0</span></button>
+      <button id="watchlistTab" class="view-tab" type="button">WATCHLIST</button>
+      <button id="followingTab" class="view-tab" type="button">FOLLOWING</button>
+      <button id="balanceTab" class="view-tab" type="button">BALANCE</button>
+      <button id="logTab" class="view-tab" type="button">LOG <span id="logTabCount">0</span></button>
+      <button id="favAlertsTab" class="view-tab" type="button">★ FAV ALERTS <span id="favAlertsTabCount" hidden>0</span></button>
+    </nav>
+
+    <div id="alertsView">
+    <section class="summary" aria-label="Dashboard summary">
+      <div class="summary-item">
+        <span class="summary-label">ACTIVE TOKENS</span>
+        <strong id="activeTokens">0</strong>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">UNIQUE BUYERS</span>
+        <strong id="activeBuyers">0</strong>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">MULTI-BUYER</span>
+        <strong id="multiBuyerTokens">0</strong>
+      </div>
+      <div class="chain-filter-control">
+        <span class="summary-label">BLOCKCHAIN</span>
+        <select id="chainFilter" aria-label="Filter displayed tokens by blockchain">
+          <option value="all">ALL</option>
+        </select>
+        <span class="chain-filter-status">Display filter only</span>
+      </div>
+      <div class="token-age-filter-control">
+        <span class="summary-label">TOKEN AGE</span>
+        <select id="tokenAgeFilter" aria-label="Filter displayed tokens by token age">
+          <option value="all">ALL</option>
+          <option value="5">&lt; 5M</option>
+          <option value="10">&lt; 10M</option>
+          <option value="30">&lt; 30M</option>
+          <option value="60">&lt; 1H</option>
+          <option value="60-480">1–8H</option>
+          <option value="480-1440">8–24H</option>
+          <option value="1440+">&gt; 24H</option>
+        </select>
+        <span class="token-age-filter-status">Unknown age stays visible</span>
+      </div>
+      <form id="cutoffForm" class="cutoff-control">
+        <label for="cutoffInput">
+          <span class="summary-label">FIRST ALERT MC CUTOFF</span>
+        </label>
+        <div class="cutoff-row">
+          <input id="cutoffInput" type="text" inputmode="decimal" autocomplete="off" value="2M" aria-label="First alert market cap cutoff">
+          <button type="submit">Apply</button>
+        </div>
+        <span id="cutoffStatus" class="cutoff-status">Applies only to new tokens</span>
+      </form>
+      <form id="balanceRefreshForm" class="balance-refresh-control">
+        <label for="balanceRefreshInput">
+          <span class="summary-label">BALANCE RESCAN</span>
+        </label>
+        <div class="balance-refresh-row">
+          <div class="seconds-input-wrap">
+            <input id="balanceRefreshInput" type="number" inputmode="numeric" min="10" step="1" autocomplete="off" value="30" aria-label="Balance rescan interval in seconds">
+            <span>S</span>
+          </div>
+          <button type="submit">Apply</button>
+        </div>
+        <span id="balanceRefreshStatus" class="balance-refresh-status">Default 30s · minimum 10s</span>
+      </form>
+      <form id="followingRefreshForm" class="balance-refresh-control">
+        <label for="followingRefreshInput">
+          <span class="summary-label">FOLLOWING RESCAN</span>
+        </label>
+        <div class="balance-refresh-row">
+          <div class="seconds-input-wrap">
+            <input id="followingRefreshInput" type="number" inputmode="numeric" min="10" step="1" autocomplete="off" value="60" aria-label="Following rescan interval in seconds">
+            <span>S</span>
+          </div>
+          <button type="submit">Apply</button>
+        </div>
+        <span id="followingRefreshStatus" class="balance-refresh-status">Default 60s · minimum 10s</span>
+      </form>
+      <form id="inactiveForm" class="inactive-control">
+        <label for="inactiveInput">
+          <span class="summary-label">REMOVE INACTIVE AFTER</span>
+        </label>
+        <div class="inactive-row">
+          <div class="hours-input-wrap">
+            <input id="inactiveInput" type="number" inputmode="decimal" min="0.1" step="0.1" autocomplete="off" placeholder="OFF" aria-label="Remove tokens inactive for this many hours">
+            <span>H</span>
+          </div>
+          <button type="submit">Apply</button>
+        </div>
+        <span id="inactiveStatus" class="inactive-status">Empty = off · based on last BUY/SELL</span>
+      </form>
+      <div class="layout-control">
+        <span class="summary-label">LAYOUT</span>
+        <label class="layout-switch" for="layoutToggle">
+          <span>CLASSIC</span>
+          <input id="layoutToggle" type="checkbox" aria-label="Use three vertical alert lanes">
+          <span class="layout-switch-track" aria-hidden="true"><i></i></span>
+          <span>LANES</span>
+        </label>
+      </div>
+    </section>
+
+    <section id="board" class="board" aria-live="polite"></section>
+    </div>
+
+
+    <section id="trendingView" class="trending-view" hidden>
+      <div class="following-head trending-head">
+        <div><h2>Trending</h2><p>Live Fomo trending tokens · shared DexScreener enrichment with Alerts.</p></div>
+        <span id="trendingUpdated" class="muted"></span>
+      </div>
+      <div class="trending-filter-panel" aria-label="Trending filters">
+        <label class="trending-search-field"><span>SEARCH</span><input id="trendingSearch" type="search" autocomplete="off" spellcheck="false" placeholder="Token, ticker or contract…"></label>
+        <label><span>CHAIN</span><select id="trendingChain"><option value="all">ALL</option><option value="4663">Robinhood</option><option value="1399811149">Solana</option><option value="56">BNB</option><option value="8453">Base</option><option value="1">ETH</option><option value="143">Chain 143</option></select></label>
+        <label><span>MC MIN</span><input id="trendingMcMin" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 10k"></label>
+        <label><span>MC MAX</span><input id="trendingMcMax" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 2m"></label>
+        <label><span>TOKEN AGE</span><select id="trendingAge"><option value="all">ALL</option><option value="5">&lt; 5M</option><option value="10">&lt; 10M</option><option value="30">&lt; 30M</option><option value="60">&lt; 1H</option><option value="60-480">1–8H</option><option value="480-1440">8–24H</option><option value="1440+">&gt; 24H</option></select></label>
+        <label><span>SORT</span><select id="trendingSort"><option value="desc">MC ↓ HIGH → LOW</option><option value="asc">MC ↑ LOW → HIGH</option></select></label>
+        <button id="trendingClear" class="trending-clear" type="button">Clear all</button>
+      </div>
+      <div class="trending-summary"><span>TOKENS <strong id="trendingCount">0</strong></span><span id="trendingFilterStatus">SHOWING ALL</span><span class="muted">Age from shared Dex data</span></div>
+      <section id="trendingBoard" class="cards trending-cards" aria-live="polite"></section>
+      <div id="trendingEmpty" class="following-empty">Waiting for Fomo trending_tokens…</div>
+    </section>
+
+    <section id="watchlistView" class="watchlist-view" hidden>
+      <div class="following-head">
+        <div><h2>Watchlist</h2><p>Starred tokens stay here and are restored from the last saved snapshot after restart.</p></div>
+        <span id="watchlistUpdated" class="muted"></span>
+      </div>
+      <section id="watchlistBoard" class="cards watchlist-cards" aria-live="polite"></section>
+      <div id="watchlistEmpty" class="following-empty" hidden>No tokens in your watchlist yet.</div>
+    </section>
+
+    <section id="balanceView" class="following-view" hidden>
+      <div class="following-head">
+        <div><h2>Balance</h2><p>Your current Fomo balances · direct multi-chain refresh.</p></div>
+        <span id="balanceUpdated" class="muted"></span>
+      </div>
+      <div class="balance-summary">
+        <span>PORTFOLIO VALUE <strong id="balanceTotalValue">—</strong></span>
+        <span>POSITIONS <strong id="balancePositionCount">0</strong></span>
+        <span id="balanceChainSummary" class="balance-chain-summary" aria-label="Positions by blockchain"></span>
+      </div>
+      <div class="following-table-wrap">
+        <table class="following-table balance-table">
+          <thead><tr>
+            <th>TOKEN</th><th>NETWORK</th><th>BALANCE</th><th>VALUE</th><th>AVG ENTRY</th><th>UNREALIZED PNL</th>
+          </tr></thead>
+          <tbody id="balanceBody"></tbody>
+        </table>
+      </div>
+      <div id="balanceEmpty" class="following-empty" hidden>No balances available yet.</div>
+    </section>
+
+    <section id="logView" class="following-view" hidden>
+      <div class="following-head">
+        <div><h2>WS Log</h2><p>Raw Fomo BUY/SELL events received during this dashboard session.</p></div>
+        <span id="logUpdated" class="muted"></span>
+      </div>
+      <div class="log-filter-panel" aria-label="WS Log filters">
+        <div class="log-filter-search-row">
+          <label class="log-search-field" for="logSearch">
+            <span>SEARCH</span>
+            <input id="logSearch" type="search" autocomplete="off" spellcheck="false" placeholder="Trader or token…">
+          </label>
+          <button id="logFiltersClear" class="log-filter-clear" type="button">Clear all</button>
+        </div>
+        <div class="log-filter-grid">
+          <label><span>SIDE</span><select id="logSideFilter"><option value="all">ALL</option><option value="buy">BUY</option><option value="sell">SELL</option></select></label>
+          <label><span>CHAIN</span><select id="logChainFilter"><option value="all">ALL</option><option value="4663">Robinhood</option><option value="1399811149">Solana</option><option value="56">BNB</option><option value="8453">Base</option><option value="1">ETH</option><option value="143">Monad</option></select></label>
+          <label><span>STATUS</span><select id="logOutcomeFilter"><option value="all">ALL</option><option value="accepted">ACCEPTED</option><option value="ignored">IGNORED</option></select></label>
+          <label><span>TIME</span><select id="logTimeFilter"><option value="all">ALL SESSION</option><option value="5">LAST 5M</option><option value="15">LAST 15M</option><option value="60">LAST 1H</option><option value="240">LAST 4H</option><option value="480">LAST 8H</option><option value="1440">LAST 24H</option></select></label>
+          <label class="log-favorite-filter"><span>PROFILE</span><button id="logFavoriteFilter" type="button" aria-pressed="false">★ Fav only</button></label>
+          <label><span>USD MIN</span><input id="logUsdMin" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 100"></label>
+          <label><span>USD MAX</span><input id="logUsdMax" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 2k"></label>
+          <label><span>MC MIN</span><input id="logMcMin" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 10k"></label>
+          <label><span>MC MAX</span><input id="logMcMax" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 500k"></label>
+        </div>
+      </div>
+      <div class="log-summary"><span>EVENTS <strong id="logCount">0</strong></span><span id="logFilterStatus">Showing all</span><span id="logSession" class="muted"></span></div>
+      <div id="logFeed" class="log-feed" aria-live="polite"></div>
+      <div id="logEmpty" class="following-empty">No WS BUY/SELL received yet.</div>
+    </section>
+
+    <section id="favAlertsView" class="following-view fav-alerts-view" hidden>
+      <div class="following-head">
+        <div><h2>Favorite Alerts</h2><p>Accepted BUYs from your ★ favorite Following profiles during this dashboard session.</p></div>
+        <span id="favAlertsUpdated" class="muted"></span>
+      </div>
+      <form id="favAlertsRetentionForm" class="fav-alerts-retention">
+        <label for="favAlertsRetentionInput">Remove alerts after</label>
+        <input id="favAlertsRetentionInput" type="number" min="1" max="10080" step="1" value="60">
+        <span>min</span>
+        <button type="submit">Apply</button>
+        <span id="favAlertsRetentionStatus" class="muted"></span>
+      </form>
+      <div class="fav-alerts-summary">
+        <span>FAVORITE BUYS <strong id="favAlertsCount">0</strong></span>
+        <span>TOKENS <strong id="favAlertsTokenCount">0</strong></span>
+      </div>
+      <div id="favAlertsFeed" class="fav-alerts-feed" aria-live="polite"></div>
+      <div id="favAlertsEmpty" class="following-empty">No favorite BUY alerts this session yet.</div>
+    </section>
+
+    <section id="followingView" class="following-view" hidden>
+      <div class="following-head">
+        <div><h2>Following</h2><p>Fomo profiles you follow · refreshed directly from Fomo on the configured cadence.</p></div>
+        <span id="followingUpdated" class="muted"></span>
+      </div>
+      <div class="following-table-wrap">
+        <table class="following-table">
+          <thead><tr>
+            <th data-sort="name">TRADER</th><th data-sort="followers">FOLLOWERS</th><th data-sort="trades">TRADES</th>
+            <th data-sort="volume">VOLUME</th><th data-sort="pnl24h">PNL 24H</th><th data-sort="favorite">FAVORI</th>
+          </tr></thead>
+          <tbody id="followingBody"></tbody>
+        </table>
+      </div>
+      <div id="followingEmpty" class="following-empty" hidden>No following profiles available yet.</div>
+    </section>
+  </main>
+
+  <template id="tokenCardTemplate">
+    <article class="token-card">
+      <div class="card-head">
+        <div class="token-identity">
+          <div class="token-avatar"></div>
+          <div class="token-title-wrap">
+            <div class="token-title-row">
+              <button type="button" class="token-watchlist-toggle" title="Add token to Watchlist" aria-label="Add token to Watchlist">☆</button>
+              <h3 class="ticker"><a class="ticker-link" target="_blank" rel="noopener noreferrer"></a></h3>
+              <span class="new-badge" hidden>NEW</span>
+              <span class="cached-badge" hidden>CACHED</span>
+              <span class="holding-badge" hidden title="You hold more than $2 of this token">💲˗ˋˏ$ˎˊ˗💲</span>
+            </div>
+            <button type="button" class="copy-address" title="Copy token address">
+              <span class="address-label"></span>
+              <span class="copy-icon">⧉</span>
+            </button>
+          </div>
+        </div>
+        <div class="market-stats">
+          <div class="current-mc">
+            <span>MC NOW</span>
+            <div class="current-mc-line">
+              <strong class="current-mc-value">—</strong>
+              <em class="current-mc-change">—</em>
+            </div>
+          </div>
+          <div class="secondary-market-stats">
+            <span>VOL 24H <strong class="volume-24h">—</strong></span>
+            <span>AGE <strong class="token-age">—</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="conviction" title="Flux d'ordres sur les 60 dernieres minutes">
+        <div class="conviction-spark"></div>
+        <div class="conviction-axis"><span>-60m</span><span>-30m</span><span>NOW</span></div>
+      </div>
+
+      <div class="buyers"></div>
+      <button type="button" class="buyers-toggle" hidden></button>
+
+      <footer class="card-foot">
+        <div class="card-foot-actions">
+          <span class="network"></span>
+          <button type="button" class="forget-token" title="Remove this token and ignore further signals until restart">FORGET</button>
+        </div>
+        <span class="mc-age"></span>
+      </footer>
+    </article>
+  </template>
+
+  <script src="/static/app.js?v=36.11"></script>
+</body>
+</html>
